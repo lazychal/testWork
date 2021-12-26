@@ -1,8 +1,12 @@
-import React, {useState} from "react";
+import React, {FC, useState} from "react";
 import './Auth.scss';
 import {useNavigate} from "react-router-dom";
 
-export const Auth = () => {
+interface IProps {
+    setCurrentUser: (value: string) => void
+}
+
+export const Auth:FC<IProps> = ({setCurrentUser}) => {
     const navigate = useNavigate()
 
     const [login, setLogin] = useState('')
@@ -11,7 +15,10 @@ export const Auth = () => {
     const submit = () => {
         console.log('Login', login)
         console.log('Password', password)
-        if(login && password) navigate('/users')
+        if(login && password) {
+            setCurrentUser(login)
+            navigate('/users')
+        }
     }
     return(
         <div className='authWrapper'>
