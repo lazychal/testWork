@@ -1,4 +1,5 @@
 import * as React from 'react';
+import './UsersTable.scss';
 import PropTypes from 'prop-types';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -13,6 +14,10 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
 import {KeyboardArrowLeft, KeyboardArrowRight} from "@material-ui/icons";
+import {FC} from "react";
+import {PencilIcon} from "../../assets/icons/PencilIcon";
+import {TrashIcon} from "../../assets/icons/TrashIcon";
+import {ICity, IUser} from "../Users";
 
 export function TablePaginationActions(props: any) {
     const theme = useTheme();
@@ -53,32 +58,21 @@ TablePaginationActions.propTypes = {
     rowsPerPage: PropTypes.number.isRequired,
 };
 
-function createData(name: string, city: string, edit: any) {
-    return { name, city, edit };
+
+
+interface IProps {
+    rows: IUser[]
+    citiesData: ICity[]
 }
 
-const rows = [
-    createData('Петров Пётр Петрович', 'Москва', 3.7),
-    createData('Иванов Иван Иванович', 'Екатеринбург', 25.0),
-    createData('Сидоров Сидор Сидорович', 'Новосибирск', 16.0),
-    createData('Васильев Василий Васильевич', 'Бобруйск', 6.0),
-    createData('Маклауд Дункан Маклаудович', 'Джексвилл', 16.0),
-    createData('Конор Джон Сарович', 'Ннью-Йорк', 3.2),
-    createData('Таргариен Дейнерис Эйрисовна', 'Винтерфелл', 9.0),
-    createData('Уайт Уолтер Хайзенбергович', 'Флорида', 0.0),
-    createData('Сноу Джон Эддардович', 'Винтерфелл', 26.0),
-    createData('Пинкман Джесси Карлович', 'Флорида', 0.2),
-    createData('Харламов Гарик Харламович', 'Тюмень', 0),
-    createData('Пирожков Артур Артурович', 'Улан-Батор', 19.0),
-    createData('Батрудинов Тимур Башарович', 'Казань', 18.0),
-].sort((a, b) => (a.city < b.city ? -1 : 1));
-
-
-
-export const UsersTable = () => {
+export const UsersTable:FC<IProps> = ({rows, citiesData}) => {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
+    const getCityName = (id: number) => {
+        const city = citiesData.filter(city => city.id === id)
+        return city[0].name
+    }
     // Avoid a layout jump when reaching the last page with empty rows.
     const emptyRows =
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
@@ -93,7 +87,7 @@ export const UsersTable = () => {
     };
 
     return (
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} className='tableContainer'>
             <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
                 <TableHead>
                     <TableRow>
@@ -106,15 +100,16 @@ export const UsersTable = () => {
                             ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             : rows
                     ).map((row) => (
-                        <TableRow key={row.name}>
+                        <TableRow key={row.id}>
                             <TableCell component="th" scope="row">
-                                {row.name}
+                                {row.fio}
                             </TableCell>
                             <TableCell style={{ width: 160 }} align="right">
-                                {row.city}
+                                {getCityName(row.cityId)}
                             </TableCell>
                             <TableCell style={{ width: 160 }} align="right">
-                                {row.edit}
+                                <span className='pencilIcon'><PencilIcon/></span>
+                                <span className='trashIcon'><TrashIcon/></span>
                             </TableCell>
                         </TableRow>
                     ))}
