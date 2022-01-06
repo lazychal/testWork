@@ -70,7 +70,10 @@ export const UsersTable:FC<IProps> = ({rows, citiesData}) => {
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
     const getCityName = (id: number) => {
-        const city = citiesData.filter(city => city.id === id)
+        const city = citiesData.filter(city => {
+            return city.id === id
+        })
+
         return city[0].name
     }
     // Avoid a layout jump when reaching the last page with empty rows.

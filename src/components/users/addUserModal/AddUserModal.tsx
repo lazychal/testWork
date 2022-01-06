@@ -1,15 +1,18 @@
-import React, {FC, useState} from "react";
+import React, {FC, useEffect, useState} from "react";
 import './AddUserModal.scss';
 import {ICity} from "../Users";
+import {CitiesAPI} from "../../../servises/api/citiesAPI";
 
 interface IProps {
-    onSubmit: (fio: string, cityId: number) => any
+    onSubmit: (fio: string, cityName: string) => any
     citiesData: ICity[]
 }
 
 export const AddUserModal:FC<IProps> = ({onSubmit, citiesData}) => {
     const [name, setName] = useState('')
-    const [city, setCity] = useState(0)
+    const [city, setCity] = useState('Москва')
+
+
 
     return(
         <div className='addUserWrapper'>
@@ -26,15 +29,13 @@ export const AddUserModal:FC<IProps> = ({onSubmit, citiesData}) => {
                 </div>
                 <div className='inputContainer'>
                     <span>Город:</span>
-                    <select>
+                    <select onChange={e => {
+                        setCity(e.target.value)
+                    }}>
                         {
                             citiesData.map((city: ICity) => {
                                 return (
                                     <option className='cityOption'
-                                            onClick={e => {
-                                                console.log('e.target', e.target)
-                                                setCity(city.id)
-                                            }}
                                             key={city.id}
                                     >
                                         {city.name}
