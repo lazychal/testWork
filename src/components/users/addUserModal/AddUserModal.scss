@@ -1,0 +1,37 @@
+.addUserWrapper {
+  position: absolute;
+  left: calc(50% - 200px);
+  width: 460px;
+  height: 235px;
+  box-sizing: border-box;
+  border: rgba(0, 0, 0, 0.2) 1px solid;
+  padding: 24px;
+  background: rgb(224 224 224);
+  .addUserTitle {
+    margin-bottom: 24px;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: initial;
+  }
+  .inputContainer {
+    display: flex;
+    justify-content: space-between;
+    &:first-child {
+      margin-bottom: 12px;
+    }
+    input, select {
+      width: 300px;
+      height: 28px;
+      box-sizing: border-box
+    }
+  }
+  button {
+    margin-top: 28px;
+    width: 255px;
+    height: 36px;
+    background: #0aa20a;
+    color: aliceblue;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+}

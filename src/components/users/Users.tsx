@@ -3,6 +3,7 @@ import './Users.scss';
 import {UsersTable} from './usersTable/UsersTable'
 import {useNavigate} from "react-router-dom";
 import {generateId} from "../idGenerator/idGenerator";
+import {AddUserModal} from "./addUserModal/AddUserModal";
 
 interface IProps {
     currentUser: string
@@ -50,16 +51,23 @@ const usersData: IUser[] = [
 ]
 export const Users:FC<IProps> = ({currentUser, setCurrentUser}) => {
 
-    const [rows, setRows] = useState<IUser[]>(usersData.sort((a, b) => (a.cityId < b.cityId ? -1 : 1)))
+    const [rows, setRows] = useState<IUser[]>(usersData.sort((a, b) => (a.fio < b.fio ? -1 : 1)))
 
     const navigate = useNavigate()
     const logout = () => {
         setCurrentUser('')
         navigate('/auth')
     }
+    const [showModal, setShowModal] = useState(false)
 
-    const addUser = (user: IUser) => {
-        setRows([...rows, user])
+    const addUser = (fio: string, cityId: number) => {
+        let newUser: IUser = {
+            id: generateId(),
+            fio: fio,
+            cityId: cityId
+        }
+        setRows([...rows, newUser].sort((a, b) => (a.fio < b.fio ? -1 : 1)))
+        setShowModal(false)
     }
 
     return(
@@ -77,8 +85,12 @@ export const Users:FC<IProps> = ({currentUser, setCurrentUser}) => {
                 </div>
                 <div className='usersContent-body'>
                     <div className='addNewUserBtn'>
-                        <button>Добавить пользователя</button>
+                        <button onClick={() => setShowModal(true)}>Добавить пользователя</button>
                     </div>
+                    {
+                        showModal &&
+                        <AddUserModal onSubmit={addUser} citiesData={citiesData}/>
+                    }
                     <div className='usersTableWrapper'>
                         <UsersTable rows={rows} citiesData={citiesData}/>
                     </div>
