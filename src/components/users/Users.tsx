@@ -3,8 +3,9 @@ import './Users.scss';
 import {UsersTable} from './usersTable/UsersTable'
 import {useNavigate} from "react-router-dom";
 import {generateId} from "../idGenerator/idGenerator";
-import {AddUserModal} from "./addUserModal/AddUserModal";
+import {UserModal} from "./userModal/UserModal";
 import {CitiesAPI} from "../../servises/api/citiesAPI";
+import {UserAPI} from "../../servises/api/userAPI";
 
 interface IProps {
     currentUser: string
@@ -83,7 +84,8 @@ export const Users:FC<IProps> = ({currentUser, setCurrentUser}) => {
         setCurrentUser('')
         navigate('/auth')
     }
-    const [showModal, setShowModal] = useState(false)
+    const [showAddModal, setShowAddModal] = useState(false)
+    const [showEditModal, setShowEditModal] = useState(false)
 
     const getCityId = (name: string) => {
         return citiesData.filter(city => city.name === name)[0].id
@@ -94,10 +96,34 @@ export const Users:FC<IProps> = ({currentUser, setCurrentUser}) => {
             fio: fio,
             cityId: getCityId(cityName)
         }
+        UserAPI.addUser(fio, newUser.id, newUser.cityId)
         setRows([...rows, newUser].sort((a, b) => (a.fio < b.fio ? -1 : 1)))
-        setShowModal(false)
+        setShowAddModal(false)
     }
-
+    const editUser = (fio: string, cityName: string, userId: string | undefined) => {
+        let newUser: IUser = {
+            id: userId!,
+            fio: fio,
+            cityId: getCityId(cityName)
+        }
+        UserAPI.editUser(fio, userId!, newUser.cityId)
+        let newData = rows.map(row => {
+            if(row.id === userId) {
+                return newUser
+            } else {
+                return row
+            }
+        })
+        setRows(newData.sort((a, b) => (a.fio < b.fio ? -1 : 1)))
+        setShowEditModal(false)
+    }
+    const deleteUser = (userId :string) => {
+        UserAPI.deleteUser(userId)
+        let newData = rows.filter(row => row.id !== userId)
+        setRows(newData.sort((a, b) => (a.fio < b.fio ? -1 : 1)))
+    }
+    console.log(rows)
+    console.log(showEditModal)
     return(
         <div className='usersWrapper'>
             <div className='usersVerticalBar'>
@@ -113,16 +139,29 @@ export const Users:FC<IProps> = ({currentUser, setCurrentUser}) => {
                 </div>
                 <div className='usersContent-body'>
                     <div className='addNewUserBtn'>
-                        <button onClick={() => setShowModal(true)}>Добавить пользователя</button>
+                        <button onClick={() => setShowAddModal(true)}>Добавить пользователя</button>
                     </div>
                     {
-                        showModal &&
-                        <AddUserModal onSubmit={addUser} citiesData={citiesData}/>
+                        showAddModal &&
+                        <UserModal
+                            onSubmit={addUser}
+                            citiesData={citiesData}
+                            modalToggle={setShowAddModal}
+                            modalTitle='Добавление пользователя'
+                            primaryBtnTitle='Добавить'
+                            secondBtn={false}
+                        />
                     }
                     <div className='usersTableWrapper'>
                         {
                             !isLoading &&
-                            <UsersTable rows={rows} citiesData={citiesData && citiesData}/>
+                            <UsersTable rows={rows}
+                                        citiesData={citiesData && citiesData}
+                                        showModal={showEditModal}
+                                        modalToggle={setShowEditModal}
+                                        editUser={editUser}
+                                        deleteUser={deleteUser}
+                            />
                         }
                     </div>
                 </div>

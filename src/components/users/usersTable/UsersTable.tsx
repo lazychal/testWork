@@ -14,10 +14,12 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
 import {KeyboardArrowLeft, KeyboardArrowRight} from "@material-ui/icons";
-import {FC} from "react";
+import {FC, useState} from "react";
 import {PencilIcon} from "../../assets/icons/PencilIcon";
 import {TrashIcon} from "../../assets/icons/TrashIcon";
 import {ICity, IUser} from "../Users";
+import {UserModal} from "../userModal/UserModal";
+import {DeleteModal} from "../deleteModal/DeleteModal";
 
 export function TablePaginationActions(props: any) {
     const theme = useTheme();
@@ -63,11 +65,19 @@ TablePaginationActions.propTypes = {
 interface IProps {
     rows: IUser[]
     citiesData: ICity[]
+    showModal: boolean
+    modalToggle: (value: boolean) => void
+    editUser: (fio: string, cityName: string, userId: string | undefined) => any
+    deleteUser: (userId: string) => void
 }
 
-export const UsersTable:FC<IProps> = ({rows, citiesData}) => {
+export const UsersTable:FC<IProps> =
+    ({rows, citiesData, showModal, modalToggle, editUser, deleteUser }) => {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
+
+    const [editRow, setEditRow] = useState('')
+    const [rowForDelete, setRowForDelete] = useState('')
 
     const getCityName = (id: number) => {
         const city = citiesData.filter(city => {
@@ -102,8 +112,9 @@ export const UsersTable:FC<IProps> = ({rows, citiesData}) => {
                     {(rowsPerPage > 0
                             ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             : rows
-                    ).map((row) => (
-                        <TableRow key={row.id}>
+                    ).map((row) => {
+                        // debugger
+                        return <TableRow key={row.id}>
                             <TableCell component="th" scope="row">
                                 {row.fio}
                             </TableCell>
@@ -111,11 +122,52 @@ export const UsersTable:FC<IProps> = ({rows, citiesData}) => {
                                 {getCityName(row.cityId)}
                             </TableCell>
                             <TableCell style={{ width: 160 }} align="right">
-                                <span className='pencilIcon'><PencilIcon/></span>
-                                <span className='trashIcon'><TrashIcon/></span>
+                                <span className='pencilIcon'
+                                      onClick={() => {
+                                          if(editRow) {
+                                              setEditRow('')
+                                              modalToggle(false)
+                                          } else {
+                                              setEditRow(row.id)
+                                              modalToggle(true)
+                                          }
+                                      }}>
+                                    <PencilIcon/>
+                                    {
+                                        editRow === row.id && showModal &&
+                                        <UserModal onSubmit={editUser}
+                                                   citiesData={citiesData}
+                                                   modalToggle={modalToggle}
+                                                   editData={[row.fio, getCityName(row.cityId), row.id]}
+                                                   modalTitle='Редактирование пользователя'
+                                                   primaryBtnTitle='Сохранить'
+                                                   secondBtn={true}
+                                        />
+                                    }
+                                </span>
+                                <span className='trashIcon'onClick={() => {
+                                    if(rowForDelete) {
+                                        setRowForDelete('')
+                                        modalToggle(false)
+                                    } else {
+                                        setRowForDelete(row.id)
+                                        modalToggle(true)
+                                    }
+                                }}>
+                                    <TrashIcon/>
+                                    {
+                                        rowForDelete === row.id && showModal &&
+                                            <DeleteModal fio={row.fio}
+                                                         cityName={getCityName(row.cityId)}
+                                                         onSubmit={deleteUser}
+                                                         userId={row.id}
+                                                         modalToggle={modalToggle}
+                                            />
+                                    }
+                                </span>
                             </TableCell>
                         </TableRow>
-                    ))}
+                    })}
 
                     {emptyRows > 0 && (
                         <TableRow style={{ height: 53 * emptyRows }}>
