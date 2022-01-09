@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import './Users.scss';
 import {UsersTable} from './usersTable/UsersTable'
 import {useNavigate} from "react-router-dom";
@@ -6,11 +6,7 @@ import {generateId} from "../idGenerator/idGenerator";
 import {UserModal} from "./userModal/UserModal";
 import {CitiesAPI} from "../../servises/api/citiesAPI";
 import {UserAPI} from "../../servises/api/userAPI";
-
-interface IProps {
-    currentUser: string
-    setCurrentUser: (value: string) => void
-}
+import {StorageService} from "../../servises/StorageService";
 
 export interface IUser {
     id: string
@@ -21,20 +17,6 @@ export interface ICity {
     id: number
     name: string
 }
-
-// const citiesData: ICity[] = [
-    // {id: 0, name: 'Москва'},
-    // {id: 1, name: 'Екатеринбург'},
-    // {id: 2, name: 'Новосибирск'},
-    // {id: 3, name: 'Бобруйск'},
-    // {id: 4, name: 'Джексвилл'},
-    // {id: 5, name: 'Нью-Йорк'},
-    // {id: 6, name: 'Винтерфелл'},
-    // {id: 7, name: 'Флорида'},
-    // {id: 8, name: 'Тюмень'},
-    // {id: 9, name: 'Улан-Батор'},
-    // {id: 10, name: 'Казань'},
-// ]
 
 const usersData: IUser[] = [
     {id: generateId(), fio: 'Петров Пётр Петрович', cityId: 2},
@@ -51,7 +33,7 @@ const usersData: IUser[] = [
     {id: generateId(), fio: 'Пирожков Артур Артурович', cityId: 1},
     {id: generateId(), fio: 'Батрудинов Тимур Башарович', cityId: 1}
 ]
-export const Users:FC<IProps> = ({currentUser, setCurrentUser}) => {
+export const Users = () => {
 
     const [rows, setRows] = useState<IUser[]>(usersData.sort((a, b) => (a.fio < b.fio ? -1 : 1)))
     const [citiesData, setCitiesData] = useState<ICity[]>([])
@@ -81,7 +63,7 @@ export const Users:FC<IProps> = ({currentUser, setCurrentUser}) => {
     }, [citiesData])
     const navigate = useNavigate()
     const logout = () => {
-        setCurrentUser('')
+        StorageService.logout()
         navigate('/auth')
     }
     const [showAddModal, setShowAddModal] = useState(false)
@@ -122,8 +104,6 @@ export const Users:FC<IProps> = ({currentUser, setCurrentUser}) => {
         let newData = rows.filter(row => row.id !== userId)
         setRows(newData.sort((a, b) => (a.fio < b.fio ? -1 : 1)))
     }
-    console.log(rows)
-    console.log(showEditModal)
     return(
         <div className='usersWrapper'>
             <div className='usersVerticalBar'>
@@ -132,7 +112,7 @@ export const Users:FC<IProps> = ({currentUser, setCurrentUser}) => {
             </div>
             <div className='usersContent'>
                 <div className='usersContent-header'>
-                    <span className='horizontalBar-userName'>{currentUser}</span>
+                    <span className='horizontalBar-userName'>{StorageService.getUser()}</span>
                     <span className='horizontalBar-btn'>
                         <button onClick={logout}>Выйти</button>
                     </span>

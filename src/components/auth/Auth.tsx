@@ -1,12 +1,9 @@
-import React, {FC, useState} from "react";
+import React, {useState} from "react";
 import './Auth.scss';
 import {useNavigate} from "react-router-dom";
+import {StorageService} from "../../servises/StorageService";
 
-interface IProps {
-    setCurrentUser: (value: string) => void
-}
-
-export const Auth:FC<IProps> = ({setCurrentUser}) => {
+export const Auth = () => {
     const navigate = useNavigate()
 
     const [login, setLogin] = useState('')
@@ -16,7 +13,7 @@ export const Auth:FC<IProps> = ({setCurrentUser}) => {
         console.log('Login', login)
         console.log('Password', password)
         if(login && password) {
-            setCurrentUser(login)
+            StorageService.login(login, password)
             navigate('/users')
         }
     }

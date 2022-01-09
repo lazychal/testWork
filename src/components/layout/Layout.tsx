@@ -1,19 +1,41 @@
-import React, {useState} from "react";
+import React from "react";
 import './Layout.scss';
-import {Route, Routes} from "react-router-dom";
-import App from "../../App";
+import {Navigate, Outlet, Route, Routes, useLocation} from "react-router-dom";
 import {Auth} from "../auth/Auth";
 import {Users} from "../users/Users";
+import {StorageService} from "../../servises/StorageService";
 
 export  const Layout = () => {
-    const [currentUser, setCurrentUser] = useState('')
+
+    function PrivateRoute() {
+        const auth: boolean | undefined = StorageService.isLoggedIn()
+        const location = useLocation()
+        return auth ?
+            <Outlet /> :
+            <Navigate to={{
+                pathname: "/login",
+                search: new URLSearchParams({ redirect: location.pathname }).toString()
+            }} />
+    }
+
+    function PublicRoute() {
+        const auth: boolean | undefined = StorageService.isLoggedIn()
+        return !auth ?
+            <Outlet /> :
+            <Navigate to="/users" />
+    }
+
     return(
         <div className='layoutWrapper'>
             <Routes>
-                {/*<Route path="/" element={<App />}/>*/}
-                <Route path="auth" element={<Auth setCurrentUser={setCurrentUser}/>} />
-                <Route path="users" element={<Users currentUser={currentUser}
-                                                    setCurrentUser={setCurrentUser}/>} />
+                <Route path="/" element={<PublicRoute />}>
+                    <Route path="/" element={<Navigate to="/login" />} />
+                    <Route path="/login" element={<Auth/>} />
+                </Route>
+                <Route path="/" element={<PrivateRoute />}>
+                <Route path="auth" element={<Auth/>} />
+                <Route path="users" element={<Users/>} />
+            </Route>
             </Routes>
         </div>
     )
