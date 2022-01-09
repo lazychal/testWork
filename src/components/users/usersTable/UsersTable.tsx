@@ -99,6 +99,25 @@ export const UsersTable:FC<IProps> =
         setPage(0);
     };
 
+    const toEditUser = (id: string) => {
+        if(editRow) {
+            setEditRow('')
+            modalToggle(false)
+        } else {
+            setEditRow(id)
+            modalToggle(true)
+        }
+    }
+    const toDeleteUser = (id: string) => {
+        if(rowForDelete) {
+            setRowForDelete('')
+            modalToggle(false)
+        } else {
+            setRowForDelete(id)
+            modalToggle(true)
+        }
+    }
+
     return (
         <TableContainer component={Paper} className='tableContainer'>
             <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
@@ -113,8 +132,7 @@ export const UsersTable:FC<IProps> =
                             ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             : rows
                     ).map((row) => {
-                        // debugger
-                        return <TableRow key={row.id}>
+                        return <TableRow key={row.id} onClick={() => toEditUser(row.id)}>
                             <TableCell component="th" scope="row">
                                 {row.fio}
                             </TableCell>
@@ -123,15 +141,7 @@ export const UsersTable:FC<IProps> =
                             </TableCell>
                             <TableCell style={{ width: 160 }} align="right">
                                 <span className='pencilIcon'
-                                      onClick={() => {
-                                          if(editRow) {
-                                              setEditRow('')
-                                              modalToggle(false)
-                                          } else {
-                                              setEditRow(row.id)
-                                              modalToggle(true)
-                                          }
-                                      }}>
+                                      onClick={() => toEditUser(row.id)}>
                                     <PencilIcon/>
                                     {
                                         editRow === row.id && showModal &&
@@ -145,15 +155,7 @@ export const UsersTable:FC<IProps> =
                                         />
                                     }
                                 </span>
-                                <span className='trashIcon'onClick={() => {
-                                    if(rowForDelete) {
-                                        setRowForDelete('')
-                                        modalToggle(false)
-                                    } else {
-                                        setRowForDelete(row.id)
-                                        modalToggle(true)
-                                    }
-                                }}>
+                                <span className='trashIcon' onClick={() => toDeleteUser(row.id)}>
                                     <TrashIcon/>
                                     {
                                         rowForDelete === row.id && showModal &&
